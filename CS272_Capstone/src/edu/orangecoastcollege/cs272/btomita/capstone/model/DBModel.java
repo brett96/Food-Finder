@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class DBModel
 {
@@ -31,7 +32,7 @@ public class DBModel
     }
 
     private void createTable() throws SQLException {
-    	//mStmt.executeUpdate("DROP TABLE IF EXISTS " + mTableName);	//  Deletes and repopulates the database
+    	mStmt.executeUpdate("DROP TABLE IF EXISTS " + mTableName);	//  Deletes and repopulates the database
         StringBuilder createSQL = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         createSQL.append(mTableName).append("(");
         for (int i = 0; i < mFieldNames.length; i++)
@@ -40,24 +41,72 @@ public class DBModel
         mStmt.executeUpdate(createSQL.toString());
     }
 
-    public ResultSet getAllRecords() throws SQLException {
-        String selectSQL = "SELECT * FROM " + mTableName;
-        return mStmt.executeQuery(selectSQL);
-    }
+//    public ResultSet getAllRecords() throws SQLException {
+//        String selectSQL = "SELECT * FROM " + mTableName;
+//        return mStmt.executeQuery(selectSQL);
+//    }
 
+    public ArrayList<ArrayList<String>> getRecord(String key) throws SQLException
+    {
+    	try(Connection connection = connectToDB();
+    			Statement stmt = connection.createStatement();
+    			ResultSet rs = stmt.executeQuery("SELECT * FROM " + mTableName + " WHERE " + mFieldNames[0] + " = " + key))
+    	{
+    		ArrayList<ArrayList<String>> resultsList = new ArrayList<>();
+			while(rs.next())
+			{
+				// Loop through each of the fields
+				// Add each value to the ArrayList
+				ArrayList<String> values = new ArrayList<>(mFieldNames.length);
+				for(String fieldName : mFieldNames)
+				{
+					values.add(rs.getString(fieldName));
+				}
+				// Add values to 2D ArrayList
+				resultsList.add(values);
+			}
+			return resultsList;
+    	}
+    }
+    public ArrayList<ArrayList<String>> getAllRecords() throws SQLException {
+		try(Connection connection = connectToDB();
+				Statement stmt = connection.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT * FROM " + mTableName);)
+		{
+			ArrayList<ArrayList<String>> resultsList = new ArrayList<>();
+			while(rs.next())
+			{
+				// Loop through each of the fields
+				// Add each value to the ArrayList
+				ArrayList<String> values = new ArrayList<>(mFieldNames.length);
+				for(String fieldName : mFieldNames)
+				{
+					values.add(rs.getString(fieldName));
+				}
+				// Add values to 2D ArrayList
+				resultsList.add(values);
+			}
+			return resultsList;
+		}
+	}
+    
     public ResultSet getRecords(String city) throws SQLException {
         String selectRecords = "SELECT * FROM " + mTableName + " WHERE " + mFieldNames[6] + " = " + city;
         System.out.println(selectRecords);
         return mStmt.executeQuery(selectRecords);
     }
 
+//    public int getRecordCount() throws SQLException {
+//        int count = 0;
+//        ResultSet rs = getAllRecords();
+//        while (rs.next())
+//            count++;
+//        return count;
+//    }
+    
     public int getRecordCount() throws SQLException {
-        int count = 0;
-        ResultSet rs = getAllRecords();
-        while (rs.next())
-            count++;
-        return count;
-    }
+		return getAllRecords().size();
+	}
 
     public int createRecord(String[] fields, String[] values) throws SQLException
     {

@@ -80,10 +80,10 @@ public class ViewFX extends Application
 		restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
 		
 		categoriesCB = new ComboBox<>(categoriesList);
-		categoriesCB.setOnAction(e -> filter());
+		categoriesCB.setOnAction(e -> returnRestaurant());
 		cityCB = new ComboBox<>(cityList);
 		//cityCB = new ComboBox<>();
-		cityCB.setOnAction(e -> filter());
+		cityCB.setOnAction(e -> returnRestaurant());
 		
 		minPriceSlider.setShowTickMarks(true);
 		minPriceSlider.setShowTickLabels(true);
@@ -107,8 +107,8 @@ public class ViewFX extends Application
 		minPriceSlider.setMajorTickUnit(1.0);
 		minPriceSlider.setBlockIncrement(1.0);
 		minPriceSlider.setMinorTickCount(0);
-		minPriceSlider.setOnMouseDragged(e -> filter());
-		minPriceSlider.setOnMouseClicked(e -> filter());
+		minPriceSlider.setOnMouseDragged(e -> returnRestaurant());
+		minPriceSlider.setOnMouseClicked(e -> returnRestaurant());
 		
 		maxPriceSlider.setShowTickMarks(true);
 		maxPriceSlider.setShowTickLabels(true);
@@ -117,16 +117,13 @@ public class ViewFX extends Application
 		maxPriceSlider.setBlockIncrement(1.0);
 		maxPriceSlider.setSnapToTicks(true);
 		maxPriceSlider.setMinorTickCount(0);
-		maxPriceSlider.setOnMouseDragged(e -> filter());
-		maxPriceSlider.setOnMouseClicked(e -> filter());
+		maxPriceSlider.setOnMouseDragged(e -> returnRestaurant());
+		maxPriceSlider.setOnMouseClicked(e -> returnRestaurant());
 		maxPriceSlider.setLabelFormatter(new StringConverter<Double>(){
 			@Override
 			public String toString(Double n){
-				if(n == 1) return "$";
-				if(n == 2) return "$$";
-				if(n == 3) return "$$$";
-				if(n == 4) return "$$$$";
-				return "$$$$$";
+				if(n < 1) return "";
+				return "$" + toString(n-1);
 			}
 
 			@Override
@@ -140,8 +137,8 @@ public class ViewFX extends Application
 		reviewsSlider.setShowTickLabels(true);
 		reviewsSlider.setMajorTickUnit(100.0);
 		reviewsSlider.setBlockIncrement(10.0);
-		reviewsSlider.setOnMouseDragged(e -> filter());
-		reviewsSlider.setOnMouseClicked(e -> filter());
+		reviewsSlider.setOnMouseDragged(e -> returnRestaurant());
+		reviewsSlider.setOnMouseClicked(e -> returnRestaurant());
 		
 		pickButton.setOnAction(e -> viewYelp());
 		resetButton.setOnAction(e -> reset());
@@ -193,6 +190,7 @@ public class ViewFX extends Application
 	
 	private void viewYelp()
 	{
+		
 		Button backButton = new Button("Back");
 		Button directionsButton = new Button("Get Directions");
 		backButton.setOnAction(e -> back());
@@ -200,7 +198,13 @@ public class ViewFX extends Application
 		WebView browser = new WebView();
 		WebEngine webEngine = browser.getEngine();
 		if(restaurantsLV.getSelectionModel().isEmpty()) 
-			selectedRestaurant = filter();
+		{
+			selectedRestaurant = returnRestaurant();
+			if (selectedRestaurant == null) {
+				// Display alert to user (no restaurants found)
+				return;
+			}
+		}
 		else
 			selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
 		webEngine.load(selectedRestaurant.getSite());
@@ -279,13 +283,15 @@ public class ViewFX extends Application
 		pickButton.setDisable(false);
 	}
 	
-	private Restaurant filter()
+	private Restaurant returnRestaurant()
 	{
 		restaurantsList = controller.filter((int) minPriceSlider.getValue(), (int) maxPriceSlider.getValue(), (int) reviewsSlider.getValue(), 
 				cityCB.getSelectionModel().getSelectedItem(), categoriesCB.getSelectionModel().getSelectedItem());
 		restaurantsLV.setItems(restaurantsList);
 		
 		int length = restaurantsList.size();
+		if (length == 0)
+			return null;
 		Random rng = new Random();
 		int randPlace = rng.nextInt(length);
 		

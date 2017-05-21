@@ -3,11 +3,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import edu.orangecoastcollege.cs272.btomita.capstone.model.DBModel;
 import edu.orangecoastcollege.cs272.btomita.capstone.model.Restaurant;
+import edu.orangecoastcollege.cs272.btomita.capstone.model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,15 +22,28 @@ public final class Controller
     private static final String TABLE_NAME = "oc";
     private static final String[] FIELD_NAMES = { "id", "name", "price", "reviews", "category", "street", "city", "phone", "site" };
     private static final String [] FIELD_TYPES = { "INTEGER PRIMARY KEY", "TEXT", "TEXT", "INTEGER", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT" };
+    
+    private static final String USER_TABLE_NAME = "users";
+    private static final String[] USER_FIELD_NAMES = {"id", "name", "email", "password"};
+    private static final String[] USER_FIELD_TYPES = {"INTEGER PRIMARY KEY", "TEXT", "TEXT", "TEXT"};
+    
+    private static final String USER_VISITED_TABLE_NAME = "user_visited";
+    private static final String[] USER_VISITED_FIELD_NAMES = { "user_id", "restaurant_id"};
+    private static final String[] USER_VISITED_FIELD_TYPES = {"INTEGER", "INTEGER"};
     private static final String DATA_FILE = "food1.csv";
 
     private ObservableList<Restaurant> mAllRestaurantsList;
+    private ObservableList<User> mAllUsersList;
+    
 //    private ObservableList<Restaurant> hbRestaurantsList;
 //    private ObservableList<Restaurant> cmRestaurantsList;
 //    private ObservableList<Restaurant> fvRestaurantsList;
 //    private ObservableList<Restaurant> irvRestaurantsList;
 //    private ObservableList<Restaurant> anaRestaurantsList;
+    private User mCurrentUser;
     private DBModel mDB;
+    private DBModel mUsersDB;
+    private DBModel mUserVisitedDB;
 
     private Controller(){};
 
@@ -39,30 +54,57 @@ public final class Controller
         {
             theOne = new Controller();
             theOne.mAllRestaurantsList = FXCollections.observableArrayList();
+            theOne.mAllUsersList = FXCollections.observableArrayList();
 
             try
             {
+            	theOne.mUsersDB = new DBModel(DB_NAME, USER_TABLE_NAME, USER_FIELD_NAMES, USER_FIELD_TYPES);
+            	ArrayList<ArrayList<String>> resultsList = theOne.mUsersDB.getAllRecords();
+            	for(ArrayList<String> values : resultsList)
+            	{
+            		int id = Integer.parseInt(values.get(0));
+            		String name = values.get(1);
+            		String email = values.get(2);
+            		theOne.mAllUsersList.add(new User(id, name, email));
+            	}
+            	
                 theOne.mDB = new DBModel(DB_NAME, TABLE_NAME, FIELD_NAMES, FIELD_TYPES);
                 theOne.initializeDBFromFile();
-                
-                ResultSet rs = theOne.mDB.getAllRecords();
-                if(rs != null)
+                resultsList = theOne.mDB.getAllRecords();
+                for(ArrayList<String> values : resultsList)
                 {
-                	while(rs.next())
-                	{
-                		int id = rs.getInt(FIELD_NAMES[0]);
-                		String name = rs.getString(FIELD_NAMES[1]);
-                		String price = rs.getString(FIELD_NAMES[2]);
-                		int reviews = rs.getInt(FIELD_NAMES[3]);
-                		String category = rs.getString(FIELD_NAMES[4]);
-                		String street = rs.getString(FIELD_NAMES[5]);
-                		String city = rs.getString(FIELD_NAMES[6]);
-                		String phone = rs.getString(FIELD_NAMES[7]);
-                		String site = rs.getString(FIELD_NAMES[8]);
-                		
-                		theOne.mAllRestaurantsList.add(new Restaurant(id, name, price, reviews, category, street, city, phone, site));
-                	}
+                	int id = Integer.parseInt(values.get(0));
+                	String name = values.get(1);
+            		String price = values.get(2);
+            		int reviews = Integer.parseInt(values.get(3));
+            		String category = values.get(4);
+            		String street = values.get(5);
+            		String city = values.get(6);
+            		String phone = values.get(7);
+            		String site = values.get(8);
+            		theOne.mAllRestaurantsList.add(new Restaurant(id, name, price, reviews, category, street, city, phone, site));
                 }
+                
+                theOne.mUserVisitedDB = new DBModel(DB_NAME, USER_VISITED_TABLE_NAME, USER_VISITED_FIELD_NAMES, USER_VISITED_FIELD_TYPES);
+                
+//                ResultSet rs = theOne.mDB.getAllRecords();
+//                if(rs != null)
+//                {
+//                	while(rs.next())
+//                	{
+//                		int id = rs.getInt(FIELD_NAMES[0]);
+//                		String name = rs.getString(FIELD_NAMES[1]);
+//                		String price = rs.getString(FIELD_NAMES[2]);
+//                		int reviews = rs.getInt(FIELD_NAMES[3]);
+//                		String category = rs.getString(FIELD_NAMES[4]);
+//                		String street = rs.getString(FIELD_NAMES[5]);
+//                		String city = rs.getString(FIELD_NAMES[6]);
+//                		String phone = rs.getString(FIELD_NAMES[7]);
+//                		String site = rs.getString(FIELD_NAMES[8]);
+//                		
+//                		theOne.mAllRestaurantsList.add(new Restaurant(id, name, price, reviews, category, street, city, phone, site));
+//                	}
+//                }
 
             }
             catch (SQLException e)
@@ -78,10 +120,63 @@ public final class Controller
     	return theOne.mAllRestaurantsList;
     }
     
+    public User getCurrentUser()
+    {
+    	return mCurrentUser;
+    }
+    
+    public String signInUser(String email, String password) {
+		for (User u : theOne.mAllUsersList)
+			if (u.getEmail().equalsIgnoreCase(email))
+			{
+				try {
+					ArrayList<ArrayList<String>> resultsList = theOne.mUsersDB.getRecord(String.valueOf(u.getId()));
+					String storedPassword = resultsList.get(0).get(4);
+					if (password.equals(storedPassword))
+					{
+						mCurrentUser = u;
+						return "SUCCESS";
+					}
+						
+						
+				} catch (Exception e) {}
+				return "Incorrect password.  Please try again.";		
+			}		
+		return "Email address not found.  Please try again.";
+	}
+    
+    public ObservableList<User> getAllUsers()
+    {
+    	return theOne.mAllUsersList;
+    }
+    
+    public ObservableList<Restaurant> getRestaurantsForCurrentUser()
+    {
+    	ObservableList<Restaurant> userRestaurantsList = FXCollections.observableArrayList();
+    	if(mCurrentUser != null)
+    	{
+    		try
+    		{
+    			ArrayList<ArrayList<String>> resultsList = theOne.mUserVisitedDB.getRecord(String.valueOf(mCurrentUser.getId()));
+    			for(ArrayList<String> values : resultsList)
+    			{
+    				int restaurantId = Integer.parseInt(values.get(1));
+    				for(Restaurant r : theOne.mAllRestaurantsList)
+    					if(r.getID() == restaurantId) userRestaurantsList.add(r);
+    			}
+    		}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+    	}
+    	return userRestaurantsList;
+    }
+    
     public ObservableList<String> getDistinctCities()
     {
     	ObservableList<String> cities = FXCollections.observableArrayList();
-    	//cities.add(" ");
+    	cities.add("");
     	for(Restaurant r : theOne.mAllRestaurantsList)
     		if(!cities.contains(r.getCity())) cities.add(r.getCity());
     	FXCollections.sort(cities);
@@ -91,7 +186,7 @@ public final class Controller
     public ObservableList<String> getDistinctPrices()
     {
     	ObservableList<String> prices = FXCollections.observableArrayList();
-    	prices.add(" ");
+    	prices.add("");
     	for(Restaurant r : theOne.mAllRestaurantsList)
     		if(!prices.contains(r.getPrice())) prices.add(r.getPrice());
     	FXCollections.sort(prices);
@@ -103,7 +198,7 @@ public final class Controller
     public ObservableList<String> getDistinctCategories()
     {
     	ObservableList<String>categories = FXCollections.observableArrayList();
-    	categories.add(" ");
+    	categories.add("");
     	for(Restaurant r : theOne.mAllRestaurantsList)
     	{
 //    		String[] categoriesList = r.getCategories().split("-");
@@ -120,6 +215,23 @@ public final class Controller
     	}
     	FXCollections.sort(categories);
     	return categories;
+    }
+    
+    public boolean addRestaurantToVisited(Restaurant r)
+    {
+    	ObservableList<Restaurant> userVisitedList = theOne.getRestaurantsForCurrentUser();
+    	if(userVisitedList.contains(r)) return false;
+    	String[] values = {String.valueOf(mCurrentUser.getId()), String.valueOf(r.getID())};
+    	try
+    	{
+    		this.mUserVisitedDB.createRecord(USER_VISITED_FIELD_NAMES, values);
+    	}
+    	catch (SQLException e)
+    	{
+    		e.printStackTrace();
+    		return false;
+    	}
+    	return true;
     }
     
     public int convertPriceToInt(String price)
@@ -141,7 +253,9 @@ public final class Controller
     		int price = convertPriceToInt(r.getPrice());
 //    		int lowPrice = convertPriceToInt(minPrice);
 //    		int highPrice = convertPriceToInt(maxPrice);
-    		if(((price >= minPrice && price <= maxPrice)) && (reviews <= r.getReviews()) && (city == null || r.getCity().equals(city)) && (category == null || r.getCategories().contains(category)))
+    		if(((price >= minPrice && price <= maxPrice)) && (r.getReviews() >= reviews) && 
+    				(city == null || r.getCity().contains(city)) && 
+    				(category == null || r.getCategories().contains(category)))
     		{
     			filteredRestaurantsList.add(r);
     		}
