@@ -53,28 +53,39 @@ public class ViewFX extends Application
 	@Override
 	public void start(Stage primaryStage) throws Exception 
 	{
-		// TODO Auto-generated method stub
-		mainStage = primaryStage;
+//		// TODO Auto-generated method stub
+		//mainStage = primaryStage;
+//		
+//		//Setup for all Restaurants:
 		
-		//Setup for all Restaurants:
+//		controller = Controller.getInstance();
+//		restaurantsList = controller.getAllRestaurants();
+//		categoriesList = controller.getDistinctCategories();
+//		priceList = controller.getDistinctPrices();
+//		
+//		cityList = controller.getDistinctCities();
+//		//nextButton.setDisable(true);
+//		
+//		mainScene = createMainScene();
+//		mainStage.setTitle("Food Finder");
+//		mainStage.setScene(mainScene);
+//		mainStage.show();
+
+		ViewNavigator.setStage(primaryStage);
+		ViewNavigator.loadFXMLScene("Welcome to Food Finder", ViewNavigator.SIGN_IN_SCENE);
+	}
+	
+	//privae StringConverter<Double> dollars
+	
+	public Scene createMainScene()
+	{
 		controller = Controller.getInstance();
 		restaurantsList = controller.getAllRestaurants();
 		categoriesList = controller.getDistinctCategories();
 		priceList = controller.getDistinctPrices();
 		
 		cityList = controller.getDistinctCities();
-		//nextButton.setDisable(true);
 		
-		mainScene = createMainScene();
-		mainStage.setTitle("Food Finder");
-		mainStage.setScene(mainScene);
-		mainStage.show();
-	}
-	
-	//privae StringConverter<Double> dollars
-	
-	private Scene createMainScene()
-	{
 		restaurantsLV.setItems(restaurantsList);
 		restaurantsLV.setPrefWidth(1000);
 		restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
@@ -188,9 +199,8 @@ public class ViewFX extends Application
 		
 	}
 	
-	private void viewYelp()
+	public void viewYelp()
 	{
-		
 		Button backButton = new Button("Back");
 		Button directionsButton = new Button("Get Directions");
 		backButton.setOnAction(e -> back());
@@ -224,12 +234,15 @@ public class ViewFX extends Application
 		//pane.add(directionsButton, 1, 2);
 		//pane.setAlignment(Pos.BASELINE_CENTER);
 		Scene yelpScene = new Scene(pane, 1100, 750, Color.web("#666960"));
-		mainStage.setScene(yelpScene);
-		mainStage.setTitle("Yelp");
-		mainStage.show();
+//		mainStage.setTitle("Yelp");
+//		mainStage.setScene(yelpScene);
+		//mainStage.setTitle("Yelp");
+		//mainStage.show();
+		//ViewNavigator.setStage(mainStage);
+		ViewNavigator.loadScene("Yelp", yelpScene);
 	}
 	
-	private void getDirections()
+	public void getDirections()
 	{
 		//Button directionsButton = new Button("Get Directions");
 		Button backButton = new Button("Back");
@@ -265,19 +278,22 @@ public class ViewFX extends Application
 		//pane.add(directionsButton, 0, 2);
 		//pane.setAlignment(Pos.BASELINE_CENTER);
 		Scene directionsScene = new Scene(pane, 1100, 750, Color.web("#666960"));
-		mainStage.setScene(directionsScene);
-		mainStage.setTitle("Directions to " + selectedRestaurant.getName());
-		mainStage.show();
+//		mainStage.setScene(directionsScene);
+//		mainStage.setTitle("Directions to " + selectedRestaurant.getName());
+//		mainStage.show();
+		//ViewNavigator.setStage(mainStage);
+		ViewNavigator.loadScene("Directions to " + selectedRestaurant.getName(), directionsScene);
 			
 	}
 	
 	private void back()
 	{
-		mainStage.setScene(mainScene);
-		mainStage.setTitle("Food Finder");
+//		mainStage.setScene(mainScene);
+//		mainStage.setTitle("Food Finder");
+		ViewNavigator.loadScene("Food Finder", createMainScene());
 	}
 	
-	private void selectRestaurant()
+	public void selectRestaurant()
 	{
 		selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
 		pickButton.setDisable(false);

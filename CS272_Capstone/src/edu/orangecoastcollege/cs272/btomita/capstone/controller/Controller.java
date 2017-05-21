@@ -129,9 +129,10 @@ public final class Controller
 		for (User u : theOne.mAllUsersList)
 			if (u.getEmail().equalsIgnoreCase(email))
 			{
-				try {
+				try 
+				{
 					ArrayList<ArrayList<String>> resultsList = theOne.mUsersDB.getRecord(String.valueOf(u.getId()));
-					String storedPassword = resultsList.get(0).get(4);
+					String storedPassword = resultsList.get(0).get(3);
 					if (password.equals(storedPassword))
 					{
 						mCurrentUser = u;
@@ -139,11 +140,34 @@ public final class Controller
 					}
 						
 						
-				} catch (Exception e) {}
+				} 
+				catch (Exception e) {return "Error";}
 				return "Incorrect password.  Please try again.";		
 			}		
 		return "Email address not found.  Please try again.";
 	}
+    
+    public String signUpUser(String name, String email, String password)
+    {
+    	for(User user : theOne.mAllUsersList)
+    		if(user.getEmail().equalsIgnoreCase(email))
+    			return "Email already exists";
+    	// Add user to database
+    	String[] values = {name, email, password};
+    	try
+    	{
+    		int id = theOne.mUsersDB.createRecord(Arrays.copyOfRange
+    				(USER_FIELD_NAMES, 1, USER_FIELD_NAMES.length), values);
+    		User newUser = new User(id, name, email);
+    		theOne.mAllUsersList.add(newUser);
+    		theOne.mCurrentUser = newUser;
+    		return "SUCCESS";
+    	}
+    	catch(SQLException e)
+    	{
+    		return "Account not created.  Please try again.";
+    	}
+    }
     
     public ObservableList<User> getAllUsers()
     {
@@ -300,7 +324,7 @@ public final class Controller
                 values[5] = data[6].replaceAll("''", "");
                 values[6] = data[7];
                 values[7] = data[1];
-                
+               
                 theOne.mDB.createRecord(Arrays.copyOfRange(FIELD_NAMES, 1, FIELD_NAMES.length), values);
                 recordsCreated++;
             }

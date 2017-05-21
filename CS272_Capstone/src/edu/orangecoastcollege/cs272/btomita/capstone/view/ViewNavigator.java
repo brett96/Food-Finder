@@ -17,8 +17,15 @@ public class ViewNavigator {
 	public static void setStage(Stage stage) {
 		mainStage = stage;
 	}
+	
+	public static void loadScene(String title, Scene scene)
+	{
+		mainStage.setTitle(title);
+		mainStage.setScene(scene);
+		mainStage.show();
+	}
 
-	public static void loadScene(String title, String sceneFXML) {
+	public static void loadFXMLScene(String title, String sceneFXML) {
 
 		try {
 			mainStage.setTitle(title);

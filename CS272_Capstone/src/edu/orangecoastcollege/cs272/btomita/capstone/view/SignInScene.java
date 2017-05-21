@@ -36,7 +36,7 @@ public class SignInScene {
 		if (result.equalsIgnoreCase("SUCCESS")) {
 			signInErrorLabel.setVisible(false);
 			// Go to next scene
-			ViewNavigator.loadScene("All Video Games", ViewNavigator.RESTAURANT_LIST_SCENE);
+			ViewNavigator.loadScene("Food Finder", new ViewFX().createMainScene());
 			return this;
 		}
 		signInErrorLabel.setText(result);
@@ -47,7 +47,7 @@ public class SignInScene {
 	@FXML
 	public Object loadSignUp()
 	{
-		ViewNavigator.loadScene("Sign Up", ViewNavigator.SIGN_UP_SCENE);
+		ViewNavigator.loadFXMLScene("Sign Up", ViewNavigator.SIGN_UP_SCENE);
 		return this;
 	}
 
