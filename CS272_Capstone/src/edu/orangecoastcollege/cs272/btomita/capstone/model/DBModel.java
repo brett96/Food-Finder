@@ -150,6 +150,18 @@ public class DBModel
         String deleteRecord = "DELETE FROM " + mTableName + " WHERE " + mFieldNames[0] + "=" + key;
         mStmt.executeUpdate(deleteRecord);
     }
+    
+    public void removeRestaurantFromDisliked(String key) throws SQLException
+    {
+    	String deleteRecord = "DELETE FROM user_disliked_restaurants WHERE restaurant_id = " + key;
+    	mStmt.executeUpdate(deleteRecord);
+    }
+    
+    public void removeRestaurantFromFavorite(String key) throws SQLException
+    {
+    	String deleteRecord = "DELETE FROM " + mTableName + " WHERE restaurant_id = " + key;
+    	mStmt.executeUpdate(deleteRecord);
+    }
 
     private String convertToSQLText(String field, String value) {
         for (int i = 0; i < mFieldNames.length; i++) {

@@ -56,6 +56,7 @@ public class ViewFX extends Application
 	Button addDislikedRestaurantButton = new Button("Add to Disliked");
 	Button viewFavoriteRestaurantsButton = new Button("View Favorite Restaurants");
 	Button viewDislikedRestaurantsButton = new Button("View Disliked Restaurants");
+	Button removeFavoriteRestaurantButton = new Button("Remove Favorite Restaurant");
 	Button removeDislikedRestaurantButton = new Button("Remove Disliked Restaurant");
 	
 	
@@ -252,12 +253,15 @@ public class ViewFX extends Application
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> back());
         
+        removeFavoriteRestaurantButton.setOnAction(e -> removeFavoriteRestaurant());
+        
         GridPane pane = new GridPane();
         pane.setVgap(10);
         pane.setPadding(new Insets(10, 00, 10, 10));
         pane.add(new Label("Favorite Restaurants:"),  0, 0);
         pane.add(restaurantsLV, 0, 6, 2, 1);
         pane.add(pickButton, 0, 7);
+        pane.add(removeFavoriteRestaurantButton, 0, 8);
         pane.add(backButton, 0, 9);
         
         Scene scene = new Scene(pane, 1100, 750, Color.web("#666960"));
@@ -307,6 +311,23 @@ public class ViewFX extends Application
 		}
 		return this;
 	}
+    
+    private Object removeFavoriteRestaurant()
+    {
+    	try
+    	{
+    		Restaurant chosenRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
+    		if(controller.removeFavoriteRestaurant(chosenRestaurant)) System.out.println("SUCCESS");
+			else System.out.println("Could not remove disliked restaurant");
+			viewFavoriteRestaurantsScene();
+			return this;
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
+    	return this;
+    }
 
     //private void logOut()
     //{

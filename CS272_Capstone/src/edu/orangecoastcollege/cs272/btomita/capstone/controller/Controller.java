@@ -458,6 +458,7 @@ public final class Controller
         if (userRestaurantsList.contains(selectedRestaurant))
             return false;
         String userID = String.valueOf(theOne.mCurrentUser.getId());
+        if(selectedRestaurant == null) return false;
         String restaurantID = String.valueOf(selectedRestaurant.getId());
         String[] values = {userID, restaurantID};
         //String[] values = {String.valueOf(theOne.mCurrentUser.getId()), String.valueOf(selectedRestaurant.getId())};
@@ -468,6 +469,22 @@ public final class Controller
             return false;
         }
         return true;
+    }
+    
+    public boolean removeFavoriteRestaurant(Restaurant selectedRestaurant)
+    {
+    	ObservableList<Restaurant> userRestaurantsList = theOne.getFavoriteRestaurantsForCurrentUser();
+        if (userRestaurantsList.contains(selectedRestaurant))
+        {
+            try {
+				theOne.mUserFavoriteRestaurantsDB.removeRestaurantFromFavorite((String.valueOf(selectedRestaurant.getId())));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            return true;
+        }
+        return false;
     }
     
     public ObservableList<Restaurant> getDislikedRestaurantsForCurrentUser()
@@ -495,7 +512,7 @@ public final class Controller
         ObservableList<Restaurant> userRestaurantsList = theOne.getDislikedRestaurantsForCurrentUser();
         if (userRestaurantsList.contains(selectedRestaurant))
             return false;
-
+        if(selectedRestaurant == null) return false;
         String[] values = {String.valueOf(theOne.mCurrentUser.getId()), String.valueOf(selectedRestaurant.getId())};
         try {
             this.mUserDislikedRestaurantsDB.createRecord(USER_DISLIKED_RESTAURANTS_FIELD_NAMES, values);
@@ -512,7 +529,7 @@ public final class Controller
         if (userRestaurantsList.contains(selectedRestaurant))
         {
             try {
-				theOne.mUserDislikedRestaurantsDB.deleteRecord(String.valueOf(selectedRestaurant.getId()));
+				theOne.mUserDislikedRestaurantsDB.removeRestaurantFromDisliked(String.valueOf(selectedRestaurant.getId()));
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
