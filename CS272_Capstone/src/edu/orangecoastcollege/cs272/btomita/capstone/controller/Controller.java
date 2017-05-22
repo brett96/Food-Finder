@@ -30,6 +30,19 @@ public final class Controller
     private static final String USER_VISITED_TABLE_NAME = "user_visited";
     private static final String[] USER_VISITED_FIELD_NAMES = { "user_id", "restaurant_id"};
     private static final String[] USER_VISITED_FIELD_TYPES = {"INTEGER", "INTEGER"};
+    
+    private static final String USER_RESTAURANTS_TABLE_NAME = "user_restaurants";
+    private static final String[] USER_RESTAURANTS_FIELD_NAMES = {"user_id", "restaurant_id"};
+    private static final String[] USER_RESTAURANTS_FIELD_TYPES = {"INTEGER", "INTEGER"};
+    
+    private static final String USER_LIKED_RESTAURANTS_TABLE_NAME = "user_liked_restaurants";
+    private static final String[] USER_LIKED_RESTAURANTS_FIELD_NAMES = {"user_id", "restaurant_id"};
+    private static final String[] USER_LIKED_RESTAURANTS_FIELD_TYPES = {"INTEGER", "INTEGER"};
+    
+    private static final String USER_DISLIKED_RESTAURANTS_TABLE_NAME = "user_disliked_restaurants";
+    private static final String[] USER_DISLIKED_RESTAURANTS_FIELD_NAMES = {"user_id", "restaurant_id"};
+    private static final String[] USER_DISLIKED_RESTAURANTS_FIELD_TYPES = {"INTEGER", "INTEGER"};
+    
     private static final String DATA_FILE = "food1.csv";
 
     private ObservableList<Restaurant> mAllRestaurantsList;
@@ -41,15 +54,18 @@ public final class Controller
 //    private ObservableList<Restaurant> irvRestaurantsList;
 //    private ObservableList<Restaurant> anaRestaurantsList;
     private User mCurrentUser;
+    //private int mCurrentUserID;
     private DBModel mDB;
     private DBModel mUsersDB;
     private DBModel mUserVisitedDB;
+    private DBModel mUserFavoriteRestaurantsDB;
+    private DBModel mUserDislikedRestaurantsDB;
+
 
     private Controller(){};
 
     public static Controller getInstance()
     {
-    	theOne = null;
         if(theOne == null)
         {
             theOne = new Controller();
@@ -58,8 +74,8 @@ public final class Controller
 
             try
             {
-            	theOne.mUsersDB = new DBModel(DB_NAME, USER_TABLE_NAME, USER_FIELD_NAMES, USER_FIELD_TYPES);
-            	ArrayList<ArrayList<String>> resultsList = theOne.mUsersDB.getAllRecords();
+            	theOne.setUsersDB(new DBModel(DB_NAME, USER_TABLE_NAME, USER_FIELD_NAMES, USER_FIELD_TYPES));
+            	ArrayList<ArrayList<String>> resultsList = theOne.getUsersDB().getAllRecords();
             	for(ArrayList<String> values : resultsList)
             	{
             		int id = Integer.parseInt(values.get(0));
@@ -105,6 +121,10 @@ public final class Controller
 //                		theOne.mAllRestaurantsList.add(new Restaurant(id, name, price, reviews, category, street, city, phone, site));
 //                	}
 //                }
+                theOne.mUserFavoriteRestaurantsDB = new DBModel(DB_NAME, USER_RESTAURANTS_TABLE_NAME, 
+                		USER_RESTAURANTS_FIELD_NAMES, USER_RESTAURANTS_FIELD_TYPES);
+                theOne.mUserDislikedRestaurantsDB = new DBModel(DB_NAME, USER_DISLIKED_RESTAURANTS_TABLE_NAME, 
+                		USER_DISLIKED_RESTAURANTS_FIELD_NAMES, USER_DISLIKED_RESTAURANTS_FIELD_TYPES);
 
             }
             catch (SQLException e)
@@ -120,9 +140,45 @@ public final class Controller
     	return theOne.mAllRestaurantsList;
     }
     
+    public int getCurrentUserID()
+    {
+    	return this.mCurrentUser.getId();
+    }
+    
     public User getCurrentUser()
     {
-    	return mCurrentUser;
+    	return this.mCurrentUser;
+    }
+    
+    public void setUser(User user)
+    {
+    	this.mCurrentUser = user;
+    }
+    
+    public User signIn(String email, String password)
+    {
+    	for (User u : theOne.mAllUsersList)
+			if (u.getEmail().equalsIgnoreCase(email))
+			{
+				try 
+				{
+					ArrayList<ArrayList<String>> resultsList = theOne.getUsersDB().getRecord(String.valueOf(u.getId()));
+					String storedPassword = resultsList.get(0).get(3);
+					if (password.equals(storedPassword))
+					{
+						this.mCurrentUser = u;
+						return u;
+						
+					}
+						
+						
+				} 
+				catch (Exception e) 
+				{
+					e.printStackTrace();
+				}
+			}
+    	return null;
     }
     
     public String signInUser(String email, String password) {
@@ -131,11 +187,11 @@ public final class Controller
 			{
 				try 
 				{
-					ArrayList<ArrayList<String>> resultsList = theOne.mUsersDB.getRecord(String.valueOf(u.getId()));
+					ArrayList<ArrayList<String>> resultsList = theOne.getUsersDB().getRecord(String.valueOf(u.getId()));
 					String storedPassword = resultsList.get(0).get(3);
 					if (password.equals(storedPassword))
 					{
-						mCurrentUser = u;
+						this.mCurrentUser = u;
 						return "SUCCESS";
 					}
 						
@@ -156,7 +212,7 @@ public final class Controller
     	String[] values = {name, email, password};
     	try
     	{
-    		int id = theOne.mUsersDB.createRecord(Arrays.copyOfRange
+    		int id = theOne.getUsersDB().createRecord(Arrays.copyOfRange
     				(USER_FIELD_NAMES, 1, USER_FIELD_NAMES.length), values);
     		User newUser = new User(id, name, email);
     		theOne.mAllUsersList.add(newUser);
@@ -186,7 +242,7 @@ public final class Controller
     			{
     				int restaurantId = Integer.parseInt(values.get(1));
     				for(Restaurant r : theOne.mAllRestaurantsList)
-    					if(r.getID() == restaurantId) userRestaurantsList.add(r);
+    					if(r.getId() == restaurantId) userRestaurantsList.add(r);
     			}
     		}
 			catch (SQLException e)
@@ -245,7 +301,7 @@ public final class Controller
     {
     	ObservableList<Restaurant> userVisitedList = theOne.getRestaurantsForCurrentUser();
     	if(userVisitedList.contains(r)) return false;
-    	String[] values = {String.valueOf(mCurrentUser.getId()), String.valueOf(r.getID())};
+    	String[] values = {String.valueOf(mCurrentUser.getId()), String.valueOf(r.getId())};
     	try
     	{
     		this.mUserVisitedDB.createRecord(USER_VISITED_FIELD_NAMES, values);
@@ -365,7 +421,7 @@ public final class Controller
     	
     	try
     	{
-    		theOne.mDB.deleteRecord(String.valueOf(r.getID()));
+    		theOne.mDB.deleteRecord(String.valueOf(r.getId()));
     	}
     	catch (SQLException e)
     	{
@@ -373,4 +429,104 @@ public final class Controller
     	}
     	return true;
     }
+    
+    public ObservableList<Restaurant> getFavoriteRestaurantsForCurrentUser()
+    {
+        ObservableList<Restaurant> userFavoriteRestaurantsList = FXCollections.observableArrayList();
+        if (mCurrentUser != null)
+        {
+            try {
+                ArrayList<ArrayList<String>> resultsList = theOne.mUserFavoriteRestaurantsDB.getRecord(String.valueOf(mCurrentUser.getId()));
+                for (ArrayList<String> values : resultsList)
+                {
+                    int restaurantId = Integer.parseInt(values.get(1));
+                    for (Restaurant r : theOne.mAllRestaurantsList)
+                        if (r.getId() == restaurantId)
+                            userFavoriteRestaurantsList.add(r);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        	System.out.println("Current user is set to null");
+        return userFavoriteRestaurantsList;
+    }
+    
+    public boolean addFavoriteRestaurant(Restaurant selectedRestaurant)  {
+        ObservableList<Restaurant> userRestaurantsList = theOne.getFavoriteRestaurantsForCurrentUser();
+        if (userRestaurantsList.contains(selectedRestaurant))
+            return false;
+        String userID = String.valueOf(theOne.mCurrentUser.getId());
+        String restaurantID = String.valueOf(selectedRestaurant.getId());
+        String[] values = {userID, restaurantID};
+        //String[] values = {String.valueOf(theOne.mCurrentUser.getId()), String.valueOf(selectedRestaurant.getId())};
+        try {
+            this.mUserFavoriteRestaurantsDB.createRecord(USER_LIKED_RESTAURANTS_FIELD_NAMES, values);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    public ObservableList<Restaurant> getDislikedRestaurantsForCurrentUser()
+    {
+        ObservableList<Restaurant> userDislikedRestaurantsList = FXCollections.observableArrayList();
+        if (mCurrentUser != null)
+        {
+            try {
+                ArrayList<ArrayList<String>> resultsList = theOne.mUserDislikedRestaurantsDB.getRecord(String.valueOf(mCurrentUser.getId()));
+                for (ArrayList<String> values : resultsList)
+                {
+                    int restaurantId = Integer.parseInt(values.get(1));
+                    for (Restaurant r : theOne.mAllRestaurantsList)
+                        if (r.getId() == restaurantId)
+                            userDislikedRestaurantsList.add(r);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return userDislikedRestaurantsList;
+    }
+    
+    public boolean addDislikedRestaurant(Restaurant selectedRestaurant)  {
+        ObservableList<Restaurant> userRestaurantsList = theOne.getDislikedRestaurantsForCurrentUser();
+        if (userRestaurantsList.contains(selectedRestaurant))
+            return false;
+
+        String[] values = {String.valueOf(theOne.mCurrentUser.getId()), String.valueOf(selectedRestaurant.getId())};
+        try {
+            this.mUserDislikedRestaurantsDB.createRecord(USER_DISLIKED_RESTAURANTS_FIELD_NAMES, values);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean removeDislikedRestaurant(Restaurant selectedRestaurant)
+    {
+    	ObservableList<Restaurant> userRestaurantsList = theOne.getDislikedRestaurantsForCurrentUser();
+        if (userRestaurantsList.contains(selectedRestaurant))
+        {
+            try {
+				theOne.mUserDislikedRestaurantsDB.deleteRecord(String.valueOf(selectedRestaurant.getId()));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            return true;
+        }
+        return false;
+    }
+
+	public DBModel getUsersDB() {
+		return mUsersDB;
+	}
+
+	public void setUsersDB(DBModel usersDB) {
+		mUsersDB = usersDB;
+	}
 }

@@ -6,6 +6,12 @@ public class User
 	private String mName;
 	private String mEmail;
 	
+	public User()
+	{
+		mId = 0;
+		mName = null;
+		mEmail = null;
+	}
 	public User(int id, String name, String email)
 	{
 		super();
@@ -13,6 +19,7 @@ public class User
 		mName = name;
 		mEmail = email;
 	}
+	
 
 	public int getId() {
 		return mId;

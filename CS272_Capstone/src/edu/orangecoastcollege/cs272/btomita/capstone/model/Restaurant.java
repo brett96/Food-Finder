@@ -28,7 +28,7 @@ public class Restaurant
         mSite = site;
     }
 
-    public int getID()
+    public int getId()
     {
         return mID;
     }
