@@ -27,6 +27,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 public class ViewFX extends Application 
@@ -60,6 +61,8 @@ public class ViewFX extends Application
 	Button viewVisitedRestaurantsButton = new Button("View Visited Restaurants");
 	Button removeFavoriteRestaurantButton = new Button("Remove Favorite Restaurant");
 	Button removeDislikedRestaurantButton = new Button("Remove Disliked Restaurant");
+	
+	private boolean isMainScene = false;
 	
 	
 	@Override
@@ -167,7 +170,7 @@ public class ViewFX extends Application
 		reviewsSlider.setOnMouseDragged(e -> returnRestaurant());
 		reviewsSlider.setOnMouseClicked(e -> returnRestaurant());
 		
-		pickButton.setOnAction(e -> viewYelp());
+		pickButton.setOnAction(e -> viewRestaurantInformation());
 		resetButton.setOnAction(e -> reset());
 		logOutButton.setOnAction(e -> viewLogInScene());
 		addFavoriteRestaurantButton.setOnAction(e -> addFavoriteRestaurant());
@@ -186,6 +189,17 @@ public class ViewFX extends Application
 		box.getChildren().add(viewVisitedRestaurantsButton);
 		box.getChildren().add(viewFavoriteRestaurantsButton);
 		box.getChildren().add(viewDislikedRestaurantsButton);
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(new Label(""));
+		box.getChildren().add(logOutButton);
 		
 //		VBox nodesVBox = new VBox();
 //		nodesVBox.setSpacing(20);
@@ -239,7 +253,7 @@ public class ViewFX extends Application
 //		pane.add(viewFavoriteRestaurantsButton, 5, 7);
 //		pane.add(viewDislikedRestaurantsButton, 6, 7);
 		//pane.add(box, 2, 1);
-		pane.add(logOutButton, 2, 7);
+		//pane.add(logOutButton, 2, 7);
 		
 		return new Scene(pane, 1200, 600);
 	}
@@ -291,7 +305,7 @@ public class ViewFX extends Application
         pickButton.setOnAction(e -> viewYelp());
         
         Button backButton = new Button("Back");
-        backButton.setOnAction(e -> back());
+        backButton.setOnAction(e -> backToRestaurantsList());
         
         removeFavoriteRestaurantButton.setOnAction(e -> removeFavoriteRestaurant());
         
@@ -346,7 +360,7 @@ public class ViewFX extends Application
         pickButton.setOnAction(e -> viewYelp());
         
         Button backButton = new Button("Back");
-        backButton.setOnAction(e -> back());
+        backButton.setOnAction(e -> backToRestaurantsList());
         
         GridPane pane = new GridPane();
         pane.setVgap(10);
@@ -421,47 +435,161 @@ public class ViewFX extends Application
         restaurantsLV.setItems(restaurantsList);
 	}
 	
+	private void backToRestaurantsList()
+	{
+//		mainStage.setScene(mainScene);
+//		mainStage.setTitle("Food Finder");
+		ViewNavigator.loadScene("Food Finder", createMainScene());
+	}
+	
 	public void viewRestaurantInformation()
 	{
-	    Button backButton = new Button("Back");
-        Button directionsButton = new Button("Visit Yelp");
-        backButton.setOnAction(e -> back());
+		Button backButton = new Button("Back");
+        //Button yelpButton = new Button("Visit Yelp");
+        Button directionsButton = new Button("Get Directions");
+        backButton.setOnAction(e -> backToRestaurantsList());
+        //yelpButton.setOnAction(e -> viewYelp());
         directionsButton.setOnAction(e -> viewDirections());
-        WebView browser = new WebView();
-        WebEngine webEngine = browser.getEngine();
-        if(restaurantsLV.getSelectionModel().isEmpty()) 
+        //WebView browser = new WebView();
+        //webEngine = browser.getEngine();
+        
+        if(restaurantsLV.getSelectionModel().isEmpty() && isMainScene) 
         {
             selectedRestaurant = returnRestaurant();
             if (selectedRestaurant == null) {
                 // Display alert to user (no restaurants found)
                 return;
             }
+            else
+            	controller.addRestaurantToVisited(selectedRestaurant);
+        }
+        else if (restaurantsLV.getSelectionModel().isEmpty())
+        {
+            selectedRestaurant = returnRestaurant();
+            if(selectedRestaurant == null)
+            	return;
+            controller.addRestaurantToVisited(selectedRestaurant);
         }
         else
-            selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
-        webEngine.load(selectedRestaurant.getSite());
+        {
+        	selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
+        	if(selectedRestaurant == null)
+        	{
+        		return;
+        	}
+        	controller.addRestaurantToVisited(selectedRestaurant);
+        }
+        //webEngine.load(selectedRestaurant.getSite());
+        Label labelName = new Label("Name:");
+        Label labelPrice = new Label("Price:");
+        Label labelReviews = new Label("Reviews:");
+        Label labelCategories = new Label("Categories:");
+        Label labelStreet = new Label("Street:");
+        Label labelCity = new Label("City:");
+        Label labelPhoneNumber = new Label("Phone Number:");
+        Label labelSite = new Label("Website:");
+        Text textName = new Text(selectedRestaurant.getName());
+        Text textPrice = new Text(selectedRestaurant.getPrice());
+        Text textReviews = new Text(String.valueOf(selectedRestaurant.getReviews()));
+        Text textCategories = new Text(selectedRestaurant.getCategories());
+        Text textStreet = new Text(selectedRestaurant.getStreet());
+        Text textCity = new Text(selectedRestaurant.getCity());
+        Text textPhoneNumber = new Text(selectedRestaurant.getPhoneNumber());
+        Text textSite = new Text(selectedRestaurant.getSite());
+        textSite.setFill(Color.BLUE);
+        textSite.setUnderline(true);
+        textSite.setOnMouseClicked(e -> viewYelp());
+        
+        /*
+         * private String mName;
+            private String mPrice;
+            private int mReviews;
+            private String mCategories;
+            private String mStreet;
+            private String mCity;
+            private String mPhoneNumber;
+            private String mSite;
+         */
         
         //Scene yelpScene = new Scene(webEngine, 1000, 800, Color.web("#666970"));//createYelpScene();
         GridPane pane = new GridPane();
-        browser.setPrefSize(1100, 700);
-        pane.add(browser, 0, 1);
         pane.setVgap(10);
 //      pane.setHgap(10);
         pane.setPadding(new Insets(10, 10, 10, 10));
         HBox box = new HBox();
         box.getChildren().add(backButton);
+        //box.getChildren().add(yelpButton);
         box.getChildren().add(directionsButton);
         box.setSpacing(5);
-        pane.add(box, 0, 2);
+        
+        pane.add(labelName, 0, 1);
+        pane.add(textName, 1, 1);
+        pane.add(labelPrice, 0, 2);
+        pane.add(textPrice, 1, 2);
+        pane.add(labelReviews, 0, 3);
+        pane.add(textReviews, 1, 3);
+        pane.add(labelCategories, 0, 4);
+        pane.add(textCategories, 1, 4);
+        pane.add(labelStreet, 0, 5);
+        pane.add(textStreet, 1, 5);
+        pane.add(labelCity, 0, 6);
+        pane.add(textCity, 1, 6);
+        pane.add(labelPhoneNumber, 0, 7);
+        pane.add(textPhoneNumber, 1, 7);
+        pane.add(labelSite, 0, 8);
+        pane.add(textSite, 1, 8);
+        
+        pane.add(box, 0, 10);
         //pane.add(directionsButton, 1, 2);
         //pane.setAlignment(Pos.BASELINE_CENTER);
-        Scene yelpScene = new Scene(pane, 1100, 750, Color.web("#666960"));
+        Scene restaurantInfoScene = new Scene(pane, 1100, 750, Color.web("#666960"));
 //      mainStage.setTitle("Yelp");
 //      mainStage.setScene(yelpScene);
         //mainStage.setTitle("Yelp");
         //mainStage.show();
         //ViewNavigator.setStage(mainStage);
-        ViewNavigator.loadScene("Yelp", yelpScene);
+        ViewNavigator.loadScene("Restaurant Information", restaurantInfoScene);
+        isMainScene = false;
+	
+//	    Button backButton = new Button("Back");
+//        Button directionsButton = new Button("Visit Yelp");
+//        backButton.setOnAction(e -> back());
+//        directionsButton.setOnAction(e -> viewDirections());
+//        WebView browser = new WebView();
+//        WebEngine webEngine = browser.getEngine();
+//        if(restaurantsLV.getSelectionModel().isEmpty()) 
+//        {
+//            selectedRestaurant = returnRestaurant();
+//            if (selectedRestaurant == null) {
+//                // Display alert to user (no restaurants found)
+//                return;
+//            }
+//        }
+//        else
+//            selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
+//        webEngine.load(selectedRestaurant.getSite());
+//        
+//        //Scene yelpScene = new Scene(webEngine, 1000, 800, Color.web("#666970"));//createYelpScene();
+//        GridPane pane = new GridPane();
+//        browser.setPrefSize(1100, 700);
+//        pane.add(browser, 0, 1);
+//        pane.setVgap(10);
+////      pane.setHgap(10);
+//        pane.setPadding(new Insets(10, 10, 10, 10));
+//        HBox box = new HBox();
+//        box.getChildren().add(backButton);
+//        box.getChildren().add(directionsButton);
+//        box.setSpacing(5);
+//        pane.add(box, 0, 2);
+//        //pane.add(directionsButton, 1, 2);
+//        //pane.setAlignment(Pos.BASELINE_CENTER);
+//        Scene yelpScene = new Scene(pane, 1100, 750, Color.web("#666960"));
+////      mainStage.setTitle("Yelp");
+////      mainStage.setScene(yelpScene);
+//        //mainStage.setTitle("Yelp");
+//        //mainStage.show();
+//        //ViewNavigator.setStage(mainStage);
+//        ViewNavigator.loadScene("Yelp", yelpScene);
 	}
 	
 	public void viewYelp()

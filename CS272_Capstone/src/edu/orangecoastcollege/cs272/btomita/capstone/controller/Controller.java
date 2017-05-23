@@ -334,7 +334,7 @@ public final class Controller
 //    		int lowPrice = convertPriceToInt(minPrice);
 //    		int highPrice = convertPriceToInt(maxPrice);
     		if(((price >= minPrice && price <= maxPrice)) && (r.getReviews() >= reviews) && 
-    				(city == null || r.getCity().equals(city)) && 
+    				(city == null || r.getCity().contains(city)) && 
     				(category == null || r.getCategories().contains(category)))
     		{
     			filteredRestaurantsList.add(r);
