@@ -13,6 +13,11 @@ import org.junit.Test;
 
 import edu.orangecoastcollege.cs272.btomita.capstone.model.DBModel;
 
+/**
+ * Unit Test class
+ * @author Brett
+ *
+ */
 public class DBModelTest {
 	
 	private static final String DB_NAME = "cs272_test.db";
@@ -25,18 +30,30 @@ public class DBModelTest {
     private String[] values;
     
 
+    /**
+     * Defines variables, resources, etc
+     * @throws Exception
+     */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception 
 	{
 		db = new DBModel(DB_NAME, TABLE_NAME, FIELD_NAMES, FIELD_TYPES);
 	}
 
+	/**
+	 * Cleans up any open resources
+	 * @throws Exception
+	 */
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception 
 	{
 		db.close();
 	}
 
+	/**
+	 * Executed before each individual test
+	 * @throws Exception
+	 */
 	@Before
 	public void setUp() throws Exception 
 	{
@@ -44,12 +61,19 @@ public class DBModelTest {
 				"Huntington Beach", "(714) 842-1122", "https://www.yelp.com/biz/the-black-trumpet-bistro-huntington-beach"};
 	}
 
+	/**
+	 * Executed after each individual test
+	 * @throws Exception
+	 */
 	@After
 	public void tearDown() throws Exception 
 	{
 		db.deleteAllRecords();
 	}
 
+	/**
+	 * Makes sure that we are able to get all the records from the database
+	 */
 	@Test
 	public void testGetAllRecord() 
 	{
@@ -64,6 +88,9 @@ public class DBModelTest {
 		}
 	}
 	
+	/**
+	 * Make sure we can get a single record from the database.
+	 */
 	@Test
     public void testGetRecord()
     {
@@ -79,6 +106,9 @@ public class DBModelTest {
         }
     }
 	
+	/**
+	 * Ensures correctness of the record count in the database.
+	 */
 	@Test
     public void testGetRecordCount()
     {
