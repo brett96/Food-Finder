@@ -151,6 +151,12 @@ public class DBModel
         mStmt.executeUpdate(deleteRecord);
     }
     
+    public void deleteRestaurantFromNotVisited(String key) throws SQLException
+    {
+    	String deleteRecord = "DELETE FROM user_not visited WHERE restaurant_id = " + key;
+    	mStmt.executeUpdate(deleteRecord);
+    }
+    
     public void removeRestaurantFromDisliked(String key) throws SQLException
     {
     	String deleteRecord = "DELETE FROM user_disliked_restaurants WHERE restaurant_id = " + key;

@@ -31,6 +31,10 @@ public final class Controller
     private static final String[] USER_VISITED_FIELD_NAMES = { "user_id", "restaurant_id"};
     private static final String[] USER_VISITED_FIELD_TYPES = {"INTEGER", "INTEGER"};
     
+    private static final String USER_NOT_VISITED_TABLE_NAME = "user_not_visited";
+    private static final String[] USER_NOT_VISITED_FIELD_NAMES = { "user_id", "restaurant_id"};
+    private static final String[] USER_NOT_VISITED_FIELD_TYPES = {"INTEGER", "INTEGER"};
+    
     private static final String USER_RESTAURANTS_TABLE_NAME = "user_restaurants";
     private static final String[] USER_RESTAURANTS_FIELD_NAMES = {"user_id", "restaurant_id"};
     private static final String[] USER_RESTAURANTS_FIELD_TYPES = {"INTEGER", "INTEGER"};
@@ -58,6 +62,7 @@ public final class Controller
     private DBModel mDB;
     private DBModel mUsersDB;
     private DBModel mUserVisitedDB;
+    private DBModel mUserNotVisitedDB;
     private DBModel mUserFavoriteRestaurantsDB;
     private DBModel mUserDislikedRestaurantsDB;
 
@@ -125,6 +130,7 @@ public final class Controller
                 		USER_RESTAURANTS_FIELD_NAMES, USER_RESTAURANTS_FIELD_TYPES);
                 theOne.mUserDislikedRestaurantsDB = new DBModel(DB_NAME, USER_DISLIKED_RESTAURANTS_TABLE_NAME, 
                 		USER_DISLIKED_RESTAURANTS_FIELD_NAMES, USER_DISLIKED_RESTAURANTS_FIELD_TYPES);
+                theOne.mUserNotVisitedDB = new DBModel(DB_NAME, USER_NOT_VISITED_TABLE_NAME, USER_NOT_VISITED_FIELD_NAMES, USER_NOT_VISITED_FIELD_TYPES);
 
             }
             catch (SQLException e)
@@ -305,6 +311,7 @@ public final class Controller
     	try
     	{
     		this.mUserVisitedDB.createRecord(USER_VISITED_FIELD_NAMES, values);
+    		this.mUserNotVisitedDB.deleteRecord(String.valueOf(r.getId()));
     	}
     	catch (SQLException e)
     	{
@@ -313,6 +320,7 @@ public final class Controller
     	}
     	return true;
     }
+    
     
     public int convertPriceToInt(String price)
     {
@@ -342,6 +350,26 @@ public final class Controller
     	}
     	return filteredRestaurantsList;
     }
+    
+    public ObservableList<Restaurant> filterFromNotVisited(int minPrice, int maxPrice, int reviews, String city, String category)
+    {
+    	ObservableList<Restaurant> filteredRestaurantsList = FXCollections.observableArrayList();
+    	ObservableList<Restaurant> notVisited = theOne.getNotVisitedRestaurantsForCurrentUser();
+    	for(Restaurant r : notVisited)
+    	{
+    		int price = convertPriceToInt(r.getPrice());
+//    		int lowPrice = convertPriceToInt(minPrice);
+//    		int highPrice = convertPriceToInt(maxPrice);
+    		if(((price >= minPrice && price <= maxPrice)) && (r.getReviews() >= reviews) && 
+    				(city == null || r.getCity().contains(city)) && 
+    				(category == null || r.getCategories().contains(category)))
+    		{
+    			filteredRestaurantsList.add(r);
+    		}
+    	}
+    	return filteredRestaurantsList;
+    }
+
 
     private int initializeDBFromFile() throws SQLException	//Loads all restaurants in the database
     {
@@ -474,6 +502,46 @@ public final class Controller
         else
         	System.out.println("Current user is set to null");
         return userVisitedRestaurantsList;
+    }
+    
+    public ObservableList<Restaurant> getNotVisitedRestaurantsForCurrentUser()
+    {
+    	ObservableList<Restaurant> userNotVisitedRestaurantsList = theOne.mAllRestaurantsList;
+    	if(mCurrentUser != null)
+    	{
+    		try
+    		{
+    			 ObservableList<Restaurant> visitedRestaurants = theOne.getVisitedRestaurantsForCurrentUser();
+    			 for (Restaurant r : visitedRestaurants)
+    			 {
+    				 userNotVisitedRestaurantsList.remove(r);
+    			 }
+    		}
+    		catch (Exception e) {
+             e.printStackTrace();
+         }
+    	}
+    	
+    	return userNotVisitedRestaurantsList;
+//    	ObservableList<Restaurant> userNotVisitedRestaurantsList = FXCollections.observableArrayList();
+//        if (mCurrentUser != null)
+//        {
+//            try {
+//                ArrayList<ArrayList<String>> resultsList = theOne.mUserNotVisitedDB.getRecord(String.valueOf(mCurrentUser.getId()));
+//                for (ArrayList<String> values : resultsList)
+//                {
+//                    int restaurantId = Integer.parseInt(values.get(1));
+//                    for (Restaurant r : theOne.mAllRestaurantsList)
+//                        if (r.getId() == restaurantId)
+//                            userNotVisitedRestaurantsList.add(r);
+//                }
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        else
+//        	System.out.println("Current user is set to null");
+//        return userNotVisitedRestaurantsList;
     }
     
     public boolean addFavoriteRestaurant(Restaurant selectedRestaurant)  {
