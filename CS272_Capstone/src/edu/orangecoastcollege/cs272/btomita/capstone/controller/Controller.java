@@ -334,7 +334,7 @@ public final class Controller
 //    		int lowPrice = convertPriceToInt(minPrice);
 //    		int highPrice = convertPriceToInt(maxPrice);
     		if(((price >= minPrice && price <= maxPrice)) && (r.getReviews() >= reviews) && 
-    				(city == null || r.getCity().contains(city)) && 
+    				(city == null || r.getCity().equals(city)) && 
     				(category == null || r.getCategories().contains(category)))
     		{
     			filteredRestaurantsList.add(r);
@@ -451,6 +451,29 @@ public final class Controller
         else
         	System.out.println("Current user is set to null");
         return userFavoriteRestaurantsList;
+    }
+    
+    public ObservableList<Restaurant> getVisitedRestaurantsForCurrentUser()
+    {
+    	ObservableList<Restaurant> userVisitedRestaurantsList = FXCollections.observableArrayList();
+        if (mCurrentUser != null)
+        {
+            try {
+                ArrayList<ArrayList<String>> resultsList = theOne.mUserVisitedDB.getRecord(String.valueOf(mCurrentUser.getId()));
+                for (ArrayList<String> values : resultsList)
+                {
+                    int restaurantId = Integer.parseInt(values.get(1));
+                    for (Restaurant r : theOne.mAllRestaurantsList)
+                        if (r.getId() == restaurantId)
+                            userVisitedRestaurantsList.add(r);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        	System.out.println("Current user is set to null");
+        return userVisitedRestaurantsList;
     }
     
     public boolean addFavoriteRestaurant(Restaurant selectedRestaurant)  {

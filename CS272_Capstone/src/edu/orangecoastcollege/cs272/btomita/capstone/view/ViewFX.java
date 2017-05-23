@@ -25,6 +25,7 @@ import javafx.util.StringConverter;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -56,6 +57,7 @@ public class ViewFX extends Application
 	Button addDislikedRestaurantButton = new Button("Add to Disliked");
 	Button viewFavoriteRestaurantsButton = new Button("View Favorite Restaurants");
 	Button viewDislikedRestaurantsButton = new Button("View Disliked Restaurants");
+	Button viewVisitedRestaurantsButton = new Button("View Visited Restaurants");
 	Button removeFavoriteRestaurantButton = new Button("Remove Favorite Restaurant");
 	Button removeDislikedRestaurantButton = new Button("Remove Disliked Restaurant");
 	
@@ -171,11 +173,44 @@ public class ViewFX extends Application
 		addFavoriteRestaurantButton.setOnAction(e -> addFavoriteRestaurant());
 		addDislikedRestaurantButton.setOnAction(e -> addDislikedRestaurantButton());
 		viewFavoriteRestaurantsButton.setOnAction(e -> viewFavoriteRestaurantsScene());
+		viewVisitedRestaurantsButton.setOnAction(e -> viewVisitedRestaurantsScene());
 		viewDislikedRestaurantsButton.setOnAction(e -> viewDislikedRestaurantsScene());
 		
 		GridPane pane = new GridPane();
+		HBox box = new HBox();
+		box.setSpacing(10);
+		box.getChildren().add(pickButton);
+		box.getChildren().add(resetButton);
+		box.getChildren().add(addFavoriteRestaurantButton);
+		box.getChildren().add(addDislikedRestaurantButton);
+		box.getChildren().add(viewVisitedRestaurantsButton);
+		box.getChildren().add(viewFavoriteRestaurantsButton);
+		box.getChildren().add(viewDislikedRestaurantsButton);
+		
+//		VBox nodesVBox = new VBox();
+//		nodesVBox.setSpacing(20);
+//		nodesVBox.getChildren().add(categoriesCB);
+//		nodesVBox.getChildren().add(cityCB);
+//		nodesVBox.getChildren().add(minPriceSlider);
+//		nodesVBox.getChildren().add(maxPriceSlider);
+//		nodesVBox.getChildren().add(reviewsSlider);
+//		nodesVBox.getChildren().add(restaurantsLV);
+//		nodesVBox.getChildren().add(box);
+		
+//		VBox labelsVBox = new VBox();
+//		labelsVBox.setSpacing(30);
+//		//labelsVBox.getChildren().add(new Label("Filters:"));
+//		labelsVBox.getChildren().add(new Label("Categories:"));
+//		labelsVBox.getChildren().add(new Label("City:"));
+//		labelsVBox.getChildren().add(new Label("Min Price:"));
+//		labelsVBox.getChildren().add(new Label("Max Price:"));
+//		labelsVBox.getChildren().add(new Label("Minimum Reviews:"));
+		
 		pane.setVgap(10);
-		pane.setPadding(new Insets(10, 00, 10, 10));
+//		pane.setHgap(10);
+		pane.setPadding(new Insets(10, 10, 10, 10));
+//		pane.add(labelsVBox, 0, 0);
+//		pane.add(nodesVBox, 1, 0);
 		pane.add(new Label("Filters:"),  0, 0);
 		pane.add(new Label("Categories:"), 0, 1);
 		pane.add(categoriesCB,  1, 1);
@@ -189,19 +224,24 @@ public class ViewFX extends Application
 		pane.add(new Label("Max Price:"), 0, 4);
 		pane.add(maxPriceSlider, 1, 4);
 		
-		pane.add(new Label("Minimum Reviews: "), 0, 5);
+		pane.add(new Label("Min Reviews: "), 0, 5);
 		pane.add(reviewsSlider, 1, 5);
+		pane.add(restaurantsLV, 1, 6);
+		pane.add(box, 1, 7);
+		//pane.add(vbox, 1, 1);
 		
-		pane.add(restaurantsLV, 0, 6, 2, 1);
-		pane.add(pickButton, 0, 7);
-		pane.add(resetButton, 1, 7);
-		pane.add(addFavoriteRestaurantButton, 2, 7);
-		pane.add(addDislikedRestaurantButton, 3, 7);
-		pane.add(viewFavoriteRestaurantsButton, 4, 7);
-		pane.add(viewDislikedRestaurantsButton, 5, 7);
-		pane.add(logOutButton, 0, 8);
+		//pane.add(restaurantsLV, 0, 6, 2, 1);
+//		pane.add(pickButton, 0, 7);
+//		pane.add(resetButton, 1, 7);
+//		pane.add(addFavoriteRestaurantButton, 2, 7);
+//		pane.add(addDislikedRestaurantButton, 3, 7);
+//		pane.add(viewVisitedRestaurantsButton, 4, 7);
+//		pane.add(viewFavoriteRestaurantsButton, 5, 7);
+//		pane.add(viewDislikedRestaurantsButton, 6, 7);
+		//pane.add(box, 2, 1);
+		pane.add(logOutButton, 2, 7);
 		
-		return new Scene(pane, 1050, 600);
+		return new Scene(pane, 1200, 600);
 	}
 	
 	private Object addDislikedRestaurantButton()
@@ -267,6 +307,32 @@ public class ViewFX extends Application
         Scene scene = new Scene(pane, 1100, 750, Color.web("#666960"));
         ViewNavigator.loadScene("Favorite Restaurants", scene);
         //return new Scene(pane, 1050, 600);
+    }
+    
+    private void viewVisitedRestaurantsScene()
+    {
+    	restaurantsList = controller.getVisitedRestaurantsForCurrentUser();
+    	restaurantsLV.setItems(restaurantsList);
+    	restaurantsLV.setPrefWidth(1000);
+    	restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
+    	
+    	pickButton.setOnAction(e -> viewYelp());
+    	
+    	Button backButton = new Button("Back");
+    	backButton.setOnAction(e -> back());
+    	
+    	GridPane pane = new GridPane();
+    	pane.setVgap(10);
+    	pane.setPadding(new Insets(10, 00, 10, 10));
+        pane.add(new Label("Visited Restaurants:"),  0, 0);
+        pane.add(restaurantsLV, 0, 6, 2, 1);
+        pane.add(pickButton, 0, 7);
+        pane.add(backButton, 0, 9);
+        //pane.add(removeDislikedRestaurantButton, 0, 8);
+        
+        Scene scene = new Scene(pane, 1100, 750, Color.web("#666960"));
+        ViewNavigator.loadScene("Visited Restaurants", scene);
+    	
     }
     
     private void viewDislikedRestaurantsScene()
@@ -409,13 +475,19 @@ public class ViewFX extends Application
 		if(restaurantsLV.getSelectionModel().isEmpty()) 
 		{
 			selectedRestaurant = returnRestaurant();
-			if (selectedRestaurant == null) {
+			if (selectedRestaurant == null) 
+			{
 				// Display alert to user (no restaurants found)
 				return;
 			}
+			else 
+				controller.addRestaurantToVisited(selectedRestaurant);
 		}
 		else
+		{
 			selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
+			controller.addRestaurantToVisited(selectedRestaurant);
+		}
 		webEngine.load(selectedRestaurant.getSite());
 		
 		//Scene yelpScene = new Scene(webEngine, 1000, 800, Color.web("#666970"));//createYelpScene();
