@@ -1,17 +1,32 @@
 package edu.orangecoastcollege.cs272.btomita.capstone.model;
 
+/**
+ * User class for Food Finder
+ * @author Brett
+ *
+ */
 public class User 
 {
 	private int mId;
 	private String mName;
 	private String mEmail;
 	
+	/**
+	 * Default User constructor
+	 */
 	public User()
 	{
 		mId = 0;
 		mName = null;
 		mEmail = null;
 	}
+	
+	/**
+	 * Constructor for User object
+	 * @param id
+	 * @param name
+	 * @param email
+	 */
 	public User(int id, String name, String email)
 	{
 		super();
@@ -21,26 +36,50 @@ public class User
 	}
 	
 
+	/**
+	 * Returns User id
+	 * @return
+	 */
 	public int getId() {
 		return mId;
 	}
 
+	/**
+	 * Sets user id
+	 * @param id
+	 */
 	public void setId(int id) {
 		mId = id;
 	}
 
+	/**
+	 * Returns user name
+	 * @return
+	 */
 	public String getName() {
 		return mName;
 	}
 
+	/**
+	 * Sets user name
+	 * @param name
+	 */
 	public void setName(String name) {
 		mName = name;
 	}
 
+	/**
+	 * returns user email
+	 * @return
+	 */
 	public String getEmail() {
 		return mEmail;
 	}
 
+	/**
+	 * Sets user email
+	 * @param email
+	 */
 	public void setEmail(String email) {
 		mEmail = email;
 	}

@@ -9,6 +9,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+/**
+ * Sign in scene Class
+ * @author Brett
+ *
+ */
 public class SignInScene {
 
 	private static Controller controller = Controller.getInstance();
@@ -25,7 +30,10 @@ public class SignInScene {
 	@FXML
 	private Label signInErrorLabel;
 
-	
+	/**
+	 * Signs in user to the program
+	 * @return
+	 */
 	@FXML
 	public Object signIn() {
 		String email = emailAddressTF.getText();
@@ -72,6 +80,10 @@ public class SignInScene {
 		return null;
 	}
 	
+	/**
+	 * Loads page to sign up for program
+	 * @return
+	 */
 	@FXML
 	public Object loadSignUp()
 	{

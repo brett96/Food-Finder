@@ -30,6 +30,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+
+/**
+ * ViewFX class
+ * @author Brett
+ *
+ */
 public class ViewFX extends Application 
 {
 	Scene mainScene;
@@ -67,6 +73,9 @@ public class ViewFX extends Application
 	private boolean isMainScene = false;
 	
 	
+	/**
+	 * Launches program
+	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception 
 	{
@@ -92,12 +101,19 @@ public class ViewFX extends Application
 		ViewNavigator.loadFXMLScene("Welcome to Food Finder", ViewNavigator.SIGN_IN_SCENE);
 	}
 	
+	/**
+	 * Changes to sign in scene
+	 */
 	//privae StringConverter<Double> dollars
 	public void viewLogInScene()
 	{
 	    ViewNavigator.loadFXMLScene("Welcome to Food Finder", ViewNavigator.SIGN_IN_SCENE);
 	}
 	
+	/**
+	 * Sets main scene from program (Scene to pick and/or view Restaurants)
+	 * @return
+	 */
 	public Scene createMainScene()
 	{
 		controller = Controller.getInstance();
@@ -121,6 +137,9 @@ public class ViewFX extends Application
 		minPriceSlider.setShowTickLabels(true);
 		minPriceSlider.setSnapToTicks(true);
 		minPriceSlider.setLabelFormatter(new StringConverter<Double>(){
+			/**
+			 * Converts integer price to dollar signs
+			 */
 			@Override
 			public String toString(Double n){
 				if(n == 1) return "$";
@@ -152,6 +171,9 @@ public class ViewFX extends Application
 		maxPriceSlider.setOnMouseDragged(e -> returnRestaurant());
 		maxPriceSlider.setOnMouseClicked(e -> returnRestaurant());
 		maxPriceSlider.setLabelFormatter(new StringConverter<Double>(){
+			/**
+			 * Recursively converts dollar signs to an integer representation of price
+			 */
 			@Override
 			public String toString(Double n){
 				if(n < 1) return "";
@@ -301,6 +323,7 @@ public class ViewFX extends Application
         restaurantsLV.setPrefWidth(1000);
         restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
         
+        pickButton.setText("Pick Restaurant");
         pickButton.setOnAction(e -> viewRestaurantInformation());
         
         Button backButton = new Button("Back");
@@ -329,6 +352,7 @@ public class ViewFX extends Application
     	restaurantsLV.setPrefWidth(1000);
     	restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
     	
+    	pickButton.setText("Pick Restaurant");
     	pickButton.setOnAction(e -> viewRestaurantInformation());
     	
     	Button backButton = new Button("Back");
@@ -354,6 +378,7 @@ public class ViewFX extends Application
     	restaurantsLV.setPrefWidth(1000);
     	restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
     	
+    	pickButton.setText("Pick Restaurant");
     	pickButton.setOnAction(e -> viewRestaurantInformation());
     	
     	Button backButton = new Button("Back");
@@ -380,6 +405,7 @@ public class ViewFX extends Application
         restaurantsLV.setOnMouseClicked(e -> selectRestaurant());
         
         removeDislikedRestaurantButton.setOnAction(e -> removeDislikedRestaurant() );
+        pickButton.setText("Pick Restaurant");
         pickButton.setOnAction(e -> viewRestaurantInformation());
         
         Button backButton = new Button("Back");
@@ -465,6 +491,10 @@ public class ViewFX extends Application
 		ViewNavigator.loadScene("Food Finder", createMainScene());
 	}
 	
+	/**
+	 * Shows restaurant information offline and provides options to view Restaurant yelp page, get directions, and/or add
+	 * Restaurant to liked/disliked tables
+	 */
 	public void viewRestaurantInformation()
 	{
 		Button backButton = new Button("Back");
@@ -568,7 +598,7 @@ public class ViewFX extends Application
         pane.setAlignment(Pos.CENTER);
         //pane.add(directionsButton, 1, 2);
         //pane.setAlignment(Pos.BASELINE_CENTER);
-        Scene restaurantInfoScene = new Scene(pane, 700, 500, Color.web("#666960"));
+        Scene restaurantInfoScene = new Scene(pane, 725, 500, Color.web("#666960"));
 //      mainStage.setTitle("Yelp");
 //      mainStage.setScene(yelpScene);
         //mainStage.setTitle("Yelp");
@@ -618,6 +648,9 @@ public class ViewFX extends Application
 //        ViewNavigator.loadScene("Yelp", yelpScene);
 	}
 	
+	/**
+	 * Shows information of unvisited restaurants
+	 */
 	public void viewNewRestaurantInformation()
 	{
 		Button backButton = new Button("Back");
@@ -771,6 +804,9 @@ public class ViewFX extends Application
 //        ViewNavigator.loadScene("Yelp", yelpScene);
 	}
 	
+	/**
+	 * Changes to a scene to view Yelp webpage and offers options to get directions or go back
+	 */
 	public void viewYelp()
 	{
 		Button backButton = new Button("Back");
@@ -820,6 +856,9 @@ public class ViewFX extends Application
 		ViewNavigator.loadScene("Yelp", yelpScene);
 	}
 	
+	/**
+	 * Changes scene to a google maps webpage with restaurant location
+	 */
 	public void viewDirections()
 	{
 		//Button directionsButton = new Button("Get Directions");
@@ -871,12 +910,19 @@ public class ViewFX extends Application
 		ViewNavigator.loadScene("Food Finder", createMainScene());
 	}
 	
+	/**
+	 * Selects specific restaurant
+	 */
 	public void selectRestaurant()
 	{
 		selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
 		pickButton.setDisable(false);
 	}
 	
+	/**
+	 * Sets restaurants List View to only restaurants that match all current criteria
+	 * @return
+	 */
 	private Restaurant returnRestaurant()
 	{
 		restaurantsList = controller.filter((int) minPriceSlider.getValue(), (int) maxPriceSlider.getValue(), (int) reviewsSlider.getValue(), 
@@ -907,6 +953,10 @@ public class ViewFX extends Application
 		return restaurantsList.get(randPlace);
 	}
 	
+	/**
+	 * Launches application
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		Application.launch(args);
@@ -914,13 +964,20 @@ public class ViewFX extends Application
 
 }
 
-
+/**
+ * Class for web browser used for Yelp and Directions scenes
+ * @author Brett
+ *
+ */
 class Browser extends StackPane {
  
 	 
     final WebView browser = new WebView();
     final WebEngine webEngine = browser.getEngine();
      
+    /**
+     * Sets up browser
+     */
     public Browser() {
         //apply the styles
         getStyleClass().add("browser");
@@ -936,16 +993,25 @@ class Browser extends StackPane {
         return spacer;
     }
  
+    /**
+     * Sets layout of browser
+     */
     @Override protected void layoutChildren() {
         double w = getWidth();
         double h = getHeight();
         layoutInArea(browser,0,0,w,h,0, HPos.CENTER, VPos.CENTER);
     }
  
+    /**
+     * returns preferred width of browser
+     */
     @Override protected double computePrefWidth(double height) {
         return 750;
     }
  
+    /**
+     * Returns preferred height of browser
+     */
     @Override protected double computePrefHeight(double width) {
         return 500;
     }

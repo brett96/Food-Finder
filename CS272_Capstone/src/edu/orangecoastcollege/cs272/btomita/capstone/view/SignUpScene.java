@@ -7,6 +7,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+/**
+ * SignUpScene class
+ * @author Brett
+ *
+ */
 public class SignUpScene 
 {
 	private static Controller controller = Controller.getInstance();
@@ -26,6 +31,10 @@ public class SignUpScene
 	@FXML
 	private Label signUpErrorLabel;
 
+	/**
+	 * Method to sign up a user
+	 * @return
+	 */
 	@FXML
 	public Object signUp() {
 
@@ -47,6 +56,10 @@ public class SignUpScene
 		return this;
 	}
 	
+	/**
+	 * Loads sign in scene
+	 * @return
+	 */
 	@FXML
 	public Object loadSignIn()
 	{

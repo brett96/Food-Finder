@@ -14,6 +14,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 
+/**
+ * Controller for Food Finder
+ * @author Brett
+ *
+ */
 public final class Controller
 {
 	private static Controller theOne;
@@ -69,6 +74,10 @@ public final class Controller
 
     private Controller(){};
 
+    /**
+     * Initializes controller and sets up tables
+     * @return
+     */
     public static Controller getInstance()
     {
         if(theOne == null)
@@ -141,26 +150,48 @@ public final class Controller
         return theOne;
     }
     
+    /**
+     * Returns all restaurants in the database as ObservableList
+     * @return
+     */
     public ObservableList<Restaurant> getAllRestaurants()
     {
     	return theOne.mAllRestaurantsList;
     }
     
+    /**
+     * Returns ID of current user
+     * @return id
+     */
     public int getCurrentUserID()
     {
     	return this.mCurrentUser.getId();
     }
     
+    /**
+     * Returns current user
+     * @return
+     */
     public User getCurrentUser()
     {
     	return this.mCurrentUser;
     }
     
+    /**
+     * Sets current user
+     * @param user
+     */
     public void setUser(User user)
     {
     	this.mCurrentUser = user;
     }
     
+    /**
+     * Signs in user if email and password match record and are valid
+     * @param email
+     * @param password
+     * @return
+     */
     public User signIn(String email, String password)
     {
     	for (User u : theOne.mAllUsersList)
@@ -187,6 +218,12 @@ public final class Controller
     	return null;
     }
     
+    /**
+     * Sign in method for Sign in scene
+     * @param email
+     * @param password
+     * @return
+     */
     public String signInUser(String email, String password) {
 		for (User u : theOne.mAllUsersList)
 			if (u.getEmail().equalsIgnoreCase(email))
@@ -209,6 +246,13 @@ public final class Controller
 		return "Email address not found.  Please try again.";
 	}
     
+    /**
+     * Signs up a user and adds user data to appropriate tables
+     * @param name
+     * @param email
+     * @param password
+     * @return
+     */
     public String signUpUser(String name, String email, String password)
     {
     	for(User user : theOne.mAllUsersList)
@@ -231,11 +275,19 @@ public final class Controller
     	}
     }
     
+    /**
+     * Returns ObservableList of all user data
+     * @return
+     */
     public ObservableList<User> getAllUsers()
     {
     	return theOne.mAllUsersList;
     }
     
+    /**
+     * Returns ObservableList of all restaurants user has visited
+     * @return visited restaurants
+     */
     public ObservableList<Restaurant> getRestaurantsForCurrentUser()
     {
     	ObservableList<Restaurant> userRestaurantsList = FXCollections.observableArrayList();
@@ -259,6 +311,10 @@ public final class Controller
     	return userRestaurantsList;
     }
     
+    /**
+     * Returns ObservableList of all cities in database
+     * @return cities
+     */
     public ObservableList<String> getDistinctCities()
     {
     	ObservableList<String> cities = FXCollections.observableArrayList();
@@ -269,6 +325,10 @@ public final class Controller
     	return cities;
     }
     
+    /**
+     * Returns all price values that exist in database
+     * @return prices
+     */
     public ObservableList<String> getDistinctPrices()
     {
     	ObservableList<String> prices = FXCollections.observableArrayList();
@@ -281,6 +341,10 @@ public final class Controller
     
 //   
     
+    /**
+     * Returns ObservableList of all the different food categories in the database
+     * @return distinct food categories
+     */
     public ObservableList<String> getDistinctCategories()
     {
     	ObservableList<String>categories = FXCollections.observableArrayList();
@@ -303,6 +367,11 @@ public final class Controller
     	return categories;
     }
     
+    /**
+     * When a user visits a restaurant, it gets added to mUserVisitedDB and gets removed from mUserNotVisitedDB
+     * @param r
+     * @return
+     */
     public boolean addRestaurantToVisited(Restaurant r)
     {
     	ObservableList<Restaurant> userVisitedList = theOne.getRestaurantsForCurrentUser();
@@ -321,7 +390,11 @@ public final class Controller
     	return true;
     }
     
-    
+    /**
+     * Converts the dollar sign representation of price to an int ranging from 1-5
+     * @param price
+     * @return int representation of price
+     */
     public int convertPriceToInt(String price)
     {
 //    	if(price.equals("$")) return 1;
@@ -333,6 +406,15 @@ public final class Controller
     	return price.length();
     }
     
+    /**
+     * Filters restaurant options based on specifications given by user
+     * @param minPrice = minimum price of wanted restaurants
+     * @param maxPrice = maximum price of wanted restaurants
+     * @param reviews = minimum number of reviews for restaurant
+     * @param city = City restaurant is located in
+     * @param category = type of food/genre restaurant offers
+     * @return ObservableList of restaurants meeting all specifications
+     */
     public ObservableList<Restaurant> filter(int minPrice, int maxPrice, int reviews, String city, String category)
     {
     	ObservableList<Restaurant> filteredRestaurantsList = FXCollections.observableArrayList();
@@ -351,6 +433,15 @@ public final class Controller
     	return filteredRestaurantsList;
     }
     
+    /**
+     * Same as filter method above, but adds the additional specification of choosing a restaurant the user hasn't visited
+     * @param minPrice
+     * @param maxPrice
+     * @param reviews
+     * @param city
+     * @param category
+     * @return
+     */
     public ObservableList<Restaurant> filterFromNotVisited(int minPrice, int maxPrice, int reviews, String city, String category)
     {
     	ObservableList<Restaurant> filteredRestaurantsList = FXCollections.observableArrayList();
@@ -371,6 +462,11 @@ public final class Controller
     }
 
 
+    /**
+     * Loads restaurant database from csv
+     * @return
+     * @throws SQLException
+     */
     private int initializeDBFromFile() throws SQLException	//Loads all restaurants in the database
     {
         int recordsCreated = 0;
@@ -422,6 +518,18 @@ public final class Controller
         return recordsCreated;
     }
     
+    /**
+     * Adds restaurant to database
+     * @param name
+     * @param price
+     * @param reviews
+     * @param category
+     * @param street
+     * @param city
+     * @param phone
+     * @param site
+     * @return
+     */
     public boolean addRestaurant(String name, String price, int reviews, String category, String street, String city, String phone, String site)
     {
     	String[] values = {name, price, String.valueOf(reviews), category, street, city, phone};
@@ -438,6 +546,11 @@ public final class Controller
     	return true;
     }
     
+    /**
+     * Removes restaurant from database
+     * @param r
+     * @return
+     */
     public boolean deleteRestaurant(Restaurant r)
     {
     	if(r == null)
@@ -458,6 +571,10 @@ public final class Controller
     	return true;
     }
     
+    /**
+     * Returns all restaurant the current user has marked as favorite
+     * @return
+     */
     public ObservableList<Restaurant> getFavoriteRestaurantsForCurrentUser()
     {
         ObservableList<Restaurant> userFavoriteRestaurantsList = FXCollections.observableArrayList();
@@ -481,6 +598,10 @@ public final class Controller
         return userFavoriteRestaurantsList;
     }
     
+    /**
+     * Returns restaurants current user has visited
+     * @return visited
+     */
     public ObservableList<Restaurant> getVisitedRestaurantsForCurrentUser()
     {
     	ObservableList<Restaurant> userVisitedRestaurantsList = FXCollections.observableArrayList();
@@ -504,6 +625,10 @@ public final class Controller
         return userVisitedRestaurantsList;
     }
     
+    /**
+     * Returns restaurants current user has not visited yet
+     * @return not visited
+     */
     public ObservableList<Restaurant> getNotVisitedRestaurantsForCurrentUser()
     {
     	ObservableList<Restaurant> userNotVisitedRestaurantsList = theOne.mAllRestaurantsList;
@@ -544,6 +669,11 @@ public final class Controller
 //        return userNotVisitedRestaurantsList;
     }
     
+    /**
+     * Adds restaurant to favorite restaurant table
+     * @param selectedRestaurant
+     * @return
+     */
     public boolean addFavoriteRestaurant(Restaurant selectedRestaurant)  {
         ObservableList<Restaurant> userRestaurantsList = theOne.getFavoriteRestaurantsForCurrentUser();
         if (userRestaurantsList.contains(selectedRestaurant))
@@ -562,6 +692,11 @@ public final class Controller
         return true;
     }
     
+    /**
+     * Removes restaurant from favorite restaurants table
+     * @param selectedRestaurant
+     * @return
+     */
     public boolean removeFavoriteRestaurant(Restaurant selectedRestaurant)
     {
     	ObservableList<Restaurant> userRestaurantsList = theOne.getFavoriteRestaurantsForCurrentUser();
@@ -578,6 +713,10 @@ public final class Controller
         return false;
     }
     
+    /**
+     * Returns restaurants current user has disliked
+     * @return disliked
+     */
     public ObservableList<Restaurant> getDislikedRestaurantsForCurrentUser()
     {
         ObservableList<Restaurant> userDislikedRestaurantsList = FXCollections.observableArrayList();
@@ -599,6 +738,11 @@ public final class Controller
         return userDislikedRestaurantsList;
     }
     
+    /**
+     * Adds restaurant to disliked restaurants table for current user
+     * @param selectedRestaurant
+     * @return
+     */
     public boolean addDislikedRestaurant(Restaurant selectedRestaurant)  {
         ObservableList<Restaurant> userRestaurantsList = theOne.getDislikedRestaurantsForCurrentUser();
         if (userRestaurantsList.contains(selectedRestaurant))
@@ -614,6 +758,11 @@ public final class Controller
         return true;
     }
     
+    /**
+     * Removes restaurant from disliked restaurants table for current user
+     * @param selectedRestaurant
+     * @return
+     */
     public boolean removeDislikedRestaurant(Restaurant selectedRestaurant)
     {
     	ObservableList<Restaurant> userRestaurantsList = theOne.getDislikedRestaurantsForCurrentUser();
@@ -630,10 +779,18 @@ public final class Controller
         return false;
     }
 
+    /**
+     * Returns users database table
+     * @return
+     */
 	public DBModel getUsersDB() {
 		return mUsersDB;
 	}
 
+	/**
+	 * Sets users database table
+	 * @param usersDB
+	 */
 	public void setUsersDB(DBModel usersDB) {
 		mUsersDB = usersDB;
 	}

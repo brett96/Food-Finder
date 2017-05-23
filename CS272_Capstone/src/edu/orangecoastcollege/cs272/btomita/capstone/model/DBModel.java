@@ -6,6 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+/**
+ * DBModel for Food Finder
+ * @author Brett
+ *
+ */
 public class DBModel
 {
     private String mDBName;
@@ -15,6 +20,14 @@ public class DBModel
     private Connection mConnection;
     private Statement mStmt;
 
+    /**
+     * Constructor for DBModel
+     * @param dbName
+     * @param tableName
+     * @param fieldNames
+     * @param fieldTypes
+     * @throws SQLException
+     */
     public DBModel(String dbName, String tableName, String[] fieldNames, String[] fieldTypes) throws SQLException
     {
         super();
@@ -46,6 +59,12 @@ public class DBModel
 //        return mStmt.executeQuery(selectSQL);
 //    }
 
+    /**
+     * Returns record with given id
+     * @param key
+     * @return
+     * @throws SQLException
+     */
     public ArrayList<ArrayList<String>> getRecord(String key) throws SQLException
     {
     	try(Connection connection = connectToDB();
@@ -68,6 +87,12 @@ public class DBModel
 			return resultsList;
     	}
     }
+    
+    /**
+     * Returns all records
+     * @return
+     * @throws SQLException
+     */
     public ArrayList<ArrayList<String>> getAllRecords() throws SQLException {
 		try(Connection connection = connectToDB();
 				Statement stmt = connection.createStatement();
@@ -90,6 +115,12 @@ public class DBModel
 		}
 	}
     
+    /**
+     * Returns all records including given city
+     * @param city
+     * @return
+     * @throws SQLException
+     */
     public ResultSet getRecords(String city) throws SQLException {
         String selectRecords = "SELECT * FROM " + mTableName + " WHERE " + mFieldNames[6] + " = " + city;
         System.out.println(selectRecords);
@@ -104,10 +135,22 @@ public class DBModel
 //        return count;
 //    }
     
+    /**
+     * Returns number of records
+     * @return
+     * @throws SQLException
+     */
     public int getRecordCount() throws SQLException {
 		return getAllRecords().size();
 	}
 
+    /**
+     * Creates a record
+     * @param fields
+     * @param values
+     * @return
+     * @throws SQLException
+     */
     public int createRecord(String[] fields, String[] values) throws SQLException
     {
         if(fields == null || values == null || fields.length == 0 || fields.length != values.length)
@@ -125,6 +168,14 @@ public class DBModel
         return mStmt.getGeneratedKeys().getInt(1);
     }
 
+    /**
+     * Updates record
+     * @param key
+     * @param fields
+     * @param values
+     * @return
+     * @throws SQLException
+     */
     public boolean updateRecord(String key, String[] fields, String[] values) throws SQLException
     {
         if(fields == null || values == null || fields.length == 0 || values.length == 0 || fields.length != values.length)
@@ -141,34 +192,64 @@ public class DBModel
         return true;
     }
 
+    /**
+     * Deletes all records
+     * @throws SQLException
+     */
     public void deleteAllRecords() throws SQLException {
         String deleteSQL = "DELETE FROM " + mTableName;
         mStmt.executeUpdate(deleteSQL);
     }
 
+    /**
+     * Deletes record with given id
+     * @param key
+     * @throws SQLException
+     */
     public void deleteRecord(String key) throws SQLException {
         String deleteRecord = "DELETE FROM " + mTableName + " WHERE " + mFieldNames[0] + "=" + key;
         mStmt.executeUpdate(deleteRecord);
     }
     
+    /**
+     * Deletes specified restaurant from not visited table
+     * @param key
+     * @throws SQLException
+     */
     public void deleteRestaurantFromNotVisited(String key) throws SQLException
     {
     	String deleteRecord = "DELETE FROM user_not visited WHERE restaurant_id = " + key;
     	mStmt.executeUpdate(deleteRecord);
     }
     
+    /**
+     * Removes restaurant from disliked restaurants table
+     * @param key
+     * @throws SQLException
+     */
     public void removeRestaurantFromDisliked(String key) throws SQLException
     {
     	String deleteRecord = "DELETE FROM user_disliked_restaurants WHERE restaurant_id = " + key;
     	mStmt.executeUpdate(deleteRecord);
     }
     
+    /**
+     * Removes restaurant from favorite restaurant table
+     * @param key
+     * @throws SQLException
+     */
     public void removeRestaurantFromFavorite(String key) throws SQLException
     {
     	String deleteRecord = "DELETE FROM " + mTableName + " WHERE restaurant_id = " + key;
     	mStmt.executeUpdate(deleteRecord);
     }
 
+    /**
+     * Converts data to SQL format
+     * @param field
+     * @param value
+     * @return
+     */
     private String convertToSQLText(String field, String value) {
         for (int i = 0; i < mFieldNames.length; i++) {
             if (field.equalsIgnoreCase(mFieldNames[i])) {
@@ -181,6 +262,11 @@ public class DBModel
         return value;
     }
 
+    /**
+     * Connects to database
+     * @return
+     * @throws SQLException
+     */
     private Connection connectToDB() throws SQLException {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -192,6 +278,10 @@ public class DBModel
         return connection;
     }
 
+    /**
+     * Closes database connection
+     * @throws SQLException
+     */
     public void close() throws SQLException {
         mConnection.close();
     }
