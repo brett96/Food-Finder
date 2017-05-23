@@ -631,7 +631,7 @@ public final class Controller
      */
     public ObservableList<Restaurant> getNotVisitedRestaurantsForCurrentUser()
     {
-    	ObservableList<Restaurant> userNotVisitedRestaurantsList = theOne.mAllRestaurantsList;
+    	ObservableList<Restaurant> userNotVisitedRestaurantsList = FXCollections.observableArrayList(mAllRestaurantsList);
     	if(mCurrentUser != null)
     	{
     		try
