@@ -57,7 +57,7 @@ public class ViewFX extends Application
 	ObservableList<String> cityList;
 	User mCurrentUser;
 	Controller controller;// = Controller.getInstance();
-	Button pickButton = new Button("Pick Any Restaurant");
+	Button pickButton = new Button("Pick Restaurant");
 	Button pickNewButton = new Button ("Pick A Restaurant I Haven't Been To");
 	Button resetButton = new Button("Reset");
 	Button logOutButton = new Button("Log Out");
@@ -815,22 +815,22 @@ public class ViewFX extends Application
 		directionsButton.setOnAction(e -> viewDirections());
 		WebView browser = new WebView();
 		WebEngine webEngine = browser.getEngine();
-		if(restaurantsLV.getSelectionModel().isEmpty()) 
-		{
-			selectedRestaurant = returnRestaurant();
-			if (selectedRestaurant == null) 
-			{
-				// Display alert to user (no restaurants found)
-				return;
-			}
-			else 
-				controller.addRestaurantToVisited(selectedRestaurant);
-		}
-		else
-		{
-			selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
-			controller.addRestaurantToVisited(selectedRestaurant);
-		}
+//		if(restaurantsLV.getSelectionModel().isEmpty()) 
+//		{
+//			selectedRestaurant = returnRestaurant();
+//			if (selectedRestaurant == null) 
+//			{
+//				// Display alert to user (no restaurants found)
+//				return;
+//			}
+//			else 
+//				controller.addRestaurantToVisited(selectedRestaurant);
+//		}
+//		else
+//		{
+//			selectedRestaurant = restaurantsLV.getSelectionModel().getSelectedItem();
+//			controller.addRestaurantToVisited(selectedRestaurant);
+//		}
 		webEngine.load(selectedRestaurant.getSite());
 		
 		//Scene yelpScene = new Scene(webEngine, 1000, 800, Color.web("#666970"));//createYelpScene();
@@ -944,11 +944,16 @@ public class ViewFX extends Application
 				cityCB.getSelectionModel().getSelectedItem(), categoriesCB.getSelectionModel().getSelectedItem());
 		restaurantsLV.setItems(restaurantsList);
 		
+		ObservableList<Restaurant> userDislikedList = controller.getDislikedRestaurantsForCurrentUser();
+		
 		int length = restaurantsList.size();
+		int randPlace;
+		do {
 		if (length == 0)
 			return null;
 		Random rng = new Random();
-		int randPlace = rng.nextInt(length);
+		randPlace = rng.nextInt(length);
+		} while (userDislikedList.contains(restaurantsList.get(randPlace)));
 		
 		return restaurantsList.get(randPlace);
 	}

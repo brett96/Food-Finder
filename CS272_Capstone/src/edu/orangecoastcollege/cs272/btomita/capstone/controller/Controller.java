@@ -676,7 +676,8 @@ public final class Controller
      */
     public boolean addFavoriteRestaurant(Restaurant selectedRestaurant)  {
         ObservableList<Restaurant> userRestaurantsList = theOne.getFavoriteRestaurantsForCurrentUser();
-        if (userRestaurantsList.contains(selectedRestaurant))
+        ObservableList<Restaurant> userDislikedList = theOne.getDislikedRestaurantsForCurrentUser();
+        if (userRestaurantsList.contains(selectedRestaurant) || userDislikedList.contains(selectedRestaurant))
             return false;
         String userID = String.valueOf(theOne.mCurrentUser.getId());
         if(selectedRestaurant == null) return false;
@@ -745,7 +746,8 @@ public final class Controller
      */
     public boolean addDislikedRestaurant(Restaurant selectedRestaurant)  {
         ObservableList<Restaurant> userRestaurantsList = theOne.getDislikedRestaurantsForCurrentUser();
-        if (userRestaurantsList.contains(selectedRestaurant))
+        ObservableList<Restaurant> userFavoritesList = theOne.getFavoriteRestaurantsForCurrentUser();
+        if (userRestaurantsList.contains(selectedRestaurant) || userFavoritesList.contains(selectedRestaurant))
             return false;
         if(selectedRestaurant == null) return false;
         String[] values = {String.valueOf(theOne.mCurrentUser.getId()), String.valueOf(selectedRestaurant.getId())};
